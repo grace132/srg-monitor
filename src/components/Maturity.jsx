@@ -29,9 +29,9 @@ export default function Maturity({ data }) {
   return (
     <div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 16 }}>
-        <MetricCard label="Urgent (≤15 hari)" value={urgent} sub={'IDR ' + fmt(urgP)} danger={urgent > 0} />
-        <MetricCard label="Soon (16–30 hari)" value={soon} sub={soon + ' facilit' + (soon !== 1 ? 'ies' : 'y')} />
-        <MetricCard label="On Track (>30 hari)" value={ok} sub={ok + ' facilit' + (ok !== 1 ? 'ies' : 'y')} success />
+        <MetricCard label="Urgent (≤15 days)" value={urgent} sub={'IDR ' + fmt(urgP)} danger={urgent > 0} />
+        <MetricCard label="Soon (16–30 days)" value={soon} sub={soon + ' facilit' + (soon !== 1 ? 'ies' : 'y')} />
+        <MetricCard label="On Track (>30 days)" value={ok} sub={ok + ' facilit' + (ok !== 1 ? 'ies' : 'y')} success />
       </div>
 
       <Card>
@@ -47,7 +47,7 @@ export default function Maturity({ data }) {
               <div style={{ width: 10, height: 10, borderRadius: '50%', background: dotColor, flexShrink: 0, marginTop: 4 }} />
               <div>
                 <div style={{ fontSize: 13, fontWeight: 600 }}>
-                  {date} — <span style={{ color: dotColor }}>{days} hari tersisa</span>
+                  {date} — <span style={{ color: dotColor }}>{days} days remaining</span>
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text-2)', marginTop: 2 }}>
                   {ls.length} facilit{ls.length > 1 ? 'ies' : 'y'} · {borrowers} · Total IDR {fmt(tot)}
@@ -62,7 +62,7 @@ export default function Maturity({ data }) {
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
           <thead>
             <tr>
-              {['#','SRG Number','Borrower','Komoditas','Principal (IDR)','Maturity Date','Days Left','Urgency']
+              {['#','SRG Number','Borrower','Commodity','Principal (IDR)','Maturity Date','Days Left','Urgency']
                 .map(h => <th key={h} style={th}>{h}</th>)}
             </tr>
           </thead>
