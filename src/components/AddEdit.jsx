@@ -94,7 +94,7 @@ export default function AddEdit({ data, editing, onSave, onCancel, onEdit, onDel
   }, [form, data, editing]);
 
   const handleSave = () => {
-    if (!form.borrower.trim()) { alert('Borrower wajib diisi.'); return; }
+    if (!form.borrower.trim()) { alert('This field is required.'); return; }
     const t = parseFloat(form.tonnage) || 0;
     const p = parseFloat(form.priceKg) || 0;
     const ltv = (parseFloat(form.ltv) || 70) / 100;
@@ -133,41 +133,41 @@ export default function AddEdit({ data, editing, onSave, onCancel, onEdit, onDel
   return (
     <div>
       <Card>
-        <CardTitle>{editing ? `Edit fasilitas — ${editing.serial}` : 'Tambah fasilitas baru'}</CardTitle>
+        <CardTitle>{editing ? `Edit facility — ${editing.serial}` : '+ Add New Facility'}</CardTitle>
 
-        <div style={{ marginBottom: 16 }}><SectionTitle>Identifikasi</SectionTitle>
+        <div style={{ marginBottom: 16 }}><SectionTitle>Identification</SectionTitle>
           <Grid2>
-            <Field label="Borrower / owner" id="borrower" value={form.borrower} onChange={set('borrower')} placeholder="PT Nama Perusahaan" />
-            <Field label="Nomor SRG" id="srg" value={form.srg} onChange={set('srg')} placeholder="00900205260012" />
+            <Field label="Borrower / owner" id="borrower" value={form.borrower} onChange={set('borrower')} placeholder="Company Name" />
+            <Field label="No. SRG" id="srg" value={form.srg} onChange={set('srg')} placeholder="00900205260012" />
             <Field label="No. Seri" id="serial" value={form.serial} onChange={set('serial')} placeholder="AN015812" />
-            <Field label="Nomor PHJ" id="phj" value={form.phj} onChange={set('phj')} placeholder="014/DIR/API-KBI/V/2026" />
+            <Field label="No. PHJ" id="phj" value={form.phj} onChange={set('phj')} placeholder="014/DIR/API-KBI/V/2026" />
           </Grid2>
         </div>
 
-        <div style={{ marginBottom: 16 }}><SectionTitle>Komoditas & Gudang</SectionTitle>
+        <div style={{ marginBottom: 16 }}><SectionTitle>Commodity & Warehouse</SectionTitle>
           <Grid3>
-            <Select label="Komoditas" id="commodity" value={form.commodity} onChange={set('commodity')} options={['Robusta', 'Arabica']} />
-            <Field label="Gudang" id="warehouse" value={form.warehouse} onChange={set('warehouse')} placeholder="Cianjur" />
-            <Field label="Grade / keterangan" id="grade" value={form.grade} onChange={set('grade')} placeholder="Robusta Grade 6" />
+            <Select label="Commodity" id="commodity" value={form.commodity} onChange={set('commodity')} options={['Robusta', 'Arabica']} />
+            <Field label="Warehouse" id="warehouse" value={form.warehouse} onChange={set('warehouse')} placeholder="Cianjur" />
+            <Field label="Grade / Remark" id="grade" value={form.grade} onChange={set('grade')} placeholder="Robusta Grade 6" />
           </Grid3>
         </div>
 
-        <div style={{ marginBottom: 16 }}><SectionTitle>Struktur pinjaman (auto-kalkulasi)</SectionTitle>
+        <div style={{ marginBottom: 16 }}><SectionTitle>Loan Structure (auto-calculated)</SectionTitle>
           <Grid3>
             <Field label="Tonnage (kg)" id="tonnage" type="number" value={form.tonnage} onChange={set('tonnage')} placeholder="61000" />
-            <Field label="Harga/kg (IDR)" id="priceKg" type="number" value={form.priceKg} onChange={set('priceKg')} placeholder="53500" />
+            <Field label="Price/kg (IDR)" id="priceKg" type="number" value={form.priceKg} onChange={set('priceKg')} placeholder="53500" />
             <Field label="LTV (%)" id="ltv" type="number" value={form.ltv} onChange={set('ltv')} placeholder="70" />
-            <Field label="Tenor (bulan)" id="tenor" type="number" value={form.tenor} onChange={set('tenor')} placeholder="1" />
+            <Field label="Tenor (month)" id="tenor" type="number" value={form.tenor} onChange={set('tenor')} placeholder="1" />
             <Field label="Interest rate (% per tenor)" id="rate" type="number" value={form.rate} onChange={set('rate')} placeholder="3" step="0.1" />
-            <Field label="Kurs IDR/SGD" id="fx" type="number" value={form.fx} onChange={set('fx')} placeholder="13700" />
+            <Field label="FX Rate IDR/SGD" id="fx" type="number" value={form.fx} onChange={set('fx')} placeholder="13700" />
           </Grid3>
         </div>
 
-        <div style={{ marginBottom: 16 }}><SectionTitle>Tanggal & biaya</SectionTitle>
+        <div style={{ marginBottom: 16 }}><SectionTitle>Date & Cost</SectionTitle>
           <Grid2>
-            <Field label="Tanggal pencairan" id="disbDate" type="date" value={form.disbDate} onChange={set('disbDate')} />
-            <Field label="Biaya gudang (IDR)" id="whFee" type="number" value={form.whFee} onChange={set('whFee')} placeholder="81587500" />
-            <Field label="Asuransi Fidelity (IDR)" id="insFid" type="number" value={form.insFid} onChange={set('insFid')} placeholder="11532250" />
+            <Field label="Disbursement Date" id="disbDate" type="date" value={form.disbDate} onChange={set('disbDate')} />
+            <Field label="Warehouse Fee (IDR)" id="whFee" type="number" value={form.whFee} onChange={set('whFee')} placeholder="81587500" />
+            <Field label="Fidelity Insurance (IDR)" id="insFid" type="number" value={form.insFid} onChange={set('insFid')} placeholder="11532250" />
             <Field label="Admin fee (IDR) — income API" id="adminFee" type="number" value={form.adminFee} onChange={set('adminFee')} placeholder="1142225" />
             <Field label="PHJ fee (IDR)" id="phjFee" type="number" value={form.phjFee} onChange={set('phjFee')} placeholder="110000" />
           </Grid2>
@@ -175,35 +175,35 @@ export default function AddEdit({ data, editing, onSave, onCancel, onEdit, onDel
 
         {preview && (
           <div style={{ background: 'var(--green-bg)', border: '1px solid rgba(30,124,58,0.2)', borderRadius: 10, padding: '12px 14px', fontSize: 12, color: 'var(--brand-dark)', marginBottom: 14, fontFamily: 'JetBrains Mono', lineHeight: 1.8 }}>
-            <strong>Auto-kalkulasi:</strong><br />
+            <strong>Auto-calculated:</strong><br />
             Commodity value &nbsp;&nbsp;= IDR {fmt(preview.commVal)}<br />
             Loan principal &nbsp;&nbsp;&nbsp;= IDR {fmt(preview.principal)}<br />
             Interest income &nbsp;&nbsp;= IDR {fmt(preview.interest)}<br />
             Disbursed &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= {fmtSGD(preview.disbSGD)}<br />
-            Sisa facility &nbsp;&nbsp;&nbsp;&nbsp;= {fmtSGD(preview.headroom)}
+            Remaining facility &nbsp;&nbsp;&nbsp;&nbsp;= {fmtSGD(preview.headroom)}
           </div>
         )}
 
         <div style={{ display: 'flex', gap: 8 }}>
-          <Btn primary onClick={handleSave}>{editing ? 'Update fasilitas' : 'Tambah fasilitas'}</Btn>
-          {editing && <Btn onClick={onCancel}>Batal</Btn>}
+          <Btn primary onClick={handleSave}>{editing ? 'Update facility' : 'Add Facility'}</Btn>
+          {editing && <Btn onClick={onCancel}>Cancel</Btn>}
         </div>
       </Card>
 
       <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--brand-dark)', marginBottom: 12 }}>
-        Fasilitas yang ada — klik Edit untuk ubah
+        Existing Facilities — click Edit to update
       </div>
       <div style={{ overflowX: 'auto', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
           <thead>
             <tr>
-              {['#','Borrower','Komoditas','Tonnage','Principal (IDR)','SGD','Days','Edit','Hapus']
+              {['#','Borrower','Commodities','Tonnage','Principal (IDR)','SGD','Days','Edit','Delete']
                 .map(h => <th key={h} style={th}>{h}</th>)}
             </tr>
           </thead>
           <tbody>
             {data.length === 0 && (
-              <tr><td colSpan={9} style={{ ...td, textAlign: 'center', padding: '1.5rem', color: 'var(--text-2)' }}>Belum ada fasilitas.</td></tr>
+              <tr><td colSpan={9} style={{ ...td, textAlign: 'center', padding: '1.5rem', color: 'var(--text-2)' }}>No facilities yet.</td></tr>
             )}
             {data.map((l, i) => (
               <tr key={l.id} style={{ background: i % 2 === 0 ? 'var(--surface)' : 'var(--bg)' }}>
@@ -215,7 +215,7 @@ export default function AddEdit({ data, editing, onSave, onCancel, onEdit, onDel
                 <td style={{ ...td, fontFamily: 'JetBrains Mono', fontSize: 11 }}>{fmtSGD(l.disbSGD)}</td>
                 <td style={{ ...td, textAlign: 'center', fontWeight: 700 }}>{l.daysLeft ?? 0}</td>
                 <td style={td}><Btn small onClick={() => onEdit(l)}>Edit</Btn></td>
-                <td style={td}><Btn small danger onClick={() => onDelete(l.id)}>Hapus</Btn></td>
+                <td style={td}><Btn small danger onClick={() => onDelete(l.id)}>Delete</Btn></td>
               </tr>
             ))}
           </tbody>
