@@ -45,17 +45,17 @@ export default function Overview({ data }) {
   return (
     <div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 12, marginBottom: 16 }}>
-        <MetricCard label="Total Kopi (SRG)" value={fmt(t.totKg) + ' kg'} sub={data.length + ' warehouse receipts'} />
+        <MetricCard label="Total Green Bean Coffee (SRG)" value={fmt(t.totKg) + ' kg'} sub={data.length + ' warehouse receipts'} />
         <MetricCard label="Loan Principal" value={'IDR ' + (t.totPrinc / 1e9).toFixed(2) + 'B'} sub={fmt(t.totPrinc)} />
         <MetricCard label="Disbursed (SGD)" value={fmtSGD(t.totSGD)} sub={'of SGD 1,510,000'} />
         <MetricCard label="Available" value={fmtSGD(avail)} sub="Remaining headroom" success />
         <MetricCard label="Commodity Value" value={'IDR ' + (t.totCommVal / 1e9).toFixed(1) + 'B'} sub="Avg LTV 70%" />
-        <MetricCard label="Jatuh Tempo ≤30d" value={urgent} sub={urgent + ' facilit' + (urgent !== 1 ? 'ies' : 'y')} danger={urgent > 0} />
+        <MetricCard label="Maturing ≤30d" value={urgent} sub={urgent + ' facilit' + (urgent !== 1 ? 'ies' : 'y')} danger={urgent > 0} />
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
         <Card>
-          <CardTitle>Kopi per komoditas (kg)</CardTitle>
+          <CardTitle>Green Bean Coffee  per Commodity (kg)</CardTitle>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
               <Pie data={commData} cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={3} dataKey="value">
