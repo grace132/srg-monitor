@@ -57,14 +57,14 @@ export default function Header({ saveStatus, onAdd, onReset, onExport }) {
         <div style={s.divider} />
         <div>
           <div style={s.title}>SRG Financing Monitor</div>
-          <div style={s.sub}>Sistem Resi Gudang · Data tersimpan otomatis</div>
+          <div style={s.sub}>Warehouse Receipt System · Auto Saved </div>
         </div>
       </div>
       <div style={s.right}>
         <span style={s.badge(saveStatus === 'saving')}>
-          {saveStatus === 'saving' ? 'Menyimpan…' : '✓ Tersimpan'}
+          {saveStatus === 'saving' ? 'Saving…' : '✓ Saved'}
         </span>
-        <button style={s.btn(true)} onClick={onAdd}>＋ Tambah</button>
+        <button style={s.btn(true)} onClick={onAdd}>＋ Add</button>
         <button style={s.btn(false)} onClick={onExport}>↓ CSV</button>
         <button style={s.btn(false)} onClick={onReset}>↺ Reset</button>
       </div>
