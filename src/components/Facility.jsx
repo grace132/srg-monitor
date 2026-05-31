@@ -48,7 +48,7 @@ export default function Facility({ data }) {
         <KpiRow label="Interest income"   idr={t.totIntIDR} sgd={t.totIntSGD} />
         <KpiRow label="Admin fees"         idr={t.totAdmIDR} sgd={t.totAdmSGD} />
         <KpiRow label="Total income"       idr={t.totIncIDR} sgd={t.totIncSGD} bold />
-        <KpiRow header label="COST — dibayar ke Bappebti" />
+        <KpiRow header label="COST — paid to Bappebti" />
         <KpiRow label={`PHJ fees (${data.length} × IDR 110.000)`} idr={t.totPhjIDR} sgd={t.totPhjSGD} />
         <KpiRow header label="BOTTOM LINE" />
         <KpiRow label="Net income (est.)"  idr={t.netIDR} sgd={t.netSGD} bold />
