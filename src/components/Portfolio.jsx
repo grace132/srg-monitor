@@ -31,7 +31,7 @@ export default function Portfolio({ data, onEdit, onDelete }) {
         <tbody>
           {data.length === 0 && (
             <tr><td colSpan={14} style={{ ...td, textAlign: 'center', padding: '2rem', color: 'var(--text-2)' }}>
-              Belum ada fasilitas. Klik Tambah untuk mulai.
+              No facilities yet. Click Add Facility to begin.
             </td></tr>
           )}
           {data.map((l, i) => {
@@ -54,7 +54,7 @@ export default function Portfolio({ data, onEdit, onDelete }) {
                 <td style={td}><Badge type={urg}>{urg === 'urgent' ? 'Urgent' : urg === 'soon' ? 'Soon' : 'Active'}</Badge></td>
                 <td style={{ ...td, whiteSpace: 'nowrap' }}>
                   <Btn small onClick={() => onEdit(l)} style={{ marginRight: 4 }}>Edit</Btn>
-                  <Btn small danger onClick={() => onDelete(l.id)}>Hapus</Btn>
+                  <Btn small danger onClick={() => onDelete(l.id)}>Delete</Btn>
                 </td>
               </tr>
             );
@@ -62,7 +62,7 @@ export default function Portfolio({ data, onEdit, onDelete }) {
         </tbody>
         <tfoot>
           <tr style={{ background: 'var(--surface3)', fontWeight: 700 }}>
-            <td colSpan={5} style={{ ...td, color: 'var(--brand-dark)', fontSize: 12 }}>TOTAL ({data.length} fasilitas)</td>
+            <td colSpan={5} style={{ ...td, color: 'var(--brand-dark)', fontSize: 12 }}>TOTAL ({data.length} facility)</td>
             <td style={{ ...td, fontFamily: 'JetBrains Mono' }}>{fmt(totKg)}</td>
             <td style={{ ...td, fontFamily: 'JetBrains Mono', fontSize: 11 }}>{fmt(totCV)}</td>
             <td style={{ ...td, fontFamily: 'JetBrains Mono', fontSize: 11 }}>{fmt(totP)}</td>
