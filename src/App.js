@@ -11,11 +11,11 @@ import AddEdit from './components/AddEdit';
 import { PageHeader, Btn } from './components/UI';
 
 const TITLES = {
-  overview:  { title: 'Overview',            sub: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) },
-  portfolio: { title: 'Portfolio detail',    sub: 'Semua fasilitas SRG aktif' },
+  overview:  { title: 'Overview',            sub: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) },
+  portfolio: { title: 'Portfolio detail',    sub: 'All active SRG facilities' },
   facility:  { title: 'Facility utilization', sub: 'SGD 1,510,000 total facility' },
-  maturity:  { title: 'Maturity schedule',   sub: 'Jadwal jatuh tempo — urut terdekat' },
-  add:       { title: 'Add / Edit',          sub: 'Tambah atau ubah fasilitas SRG' },
+  maturity:  { title: 'Maturity schedule',   sub: 'Repayment schedule — sorted soonest first' },
+  add:       { title: 'Add / Edit',          sub: 'Add or modify SRG facilities' },
 };
 
 function exportCSV(data) {
@@ -49,26 +49,26 @@ export default function App() {
   const handleEdit = (loan) => { setEditing(loan); setTab('add'); };
 
   const handleDelete = (id) => {
-    if (!window.confirm('Hapus fasilitas ini?')) return;
+    if (!window.confirm('Delete this facility?')) return;
     deleteLoan(id);
-    showNotify('Fasilitas dihapus.');
+    showNotify('Facility deleted.');
   };
 
   const handleSave = (loan) => {
     if (editing) {
       updateLoan(editing.id, loan);
-      showNotify('Fasilitas diupdate. Semua total otomatis diperbarui.');
+      showNotify('Facility updated. All totals recalculated.');
     } else {
       addLoan(loan);
-      showNotify('Fasilitas baru ditambahkan.');
+      showNotify('New facility added.');
     }
     setEditing(null);
   };
 
   const handleReset = () => {
-    if (!window.confirm('Reset ke 8 fasilitas awal?')) return;
+    if (!window.confirm('Reset to original 8 facilities?')) return;
     resetData();
-    showNotify('Data direset ke default.');
+    showNotify('Data reset to default.');
   };
 
   const { title, sub } = TITLES[tab];
@@ -85,7 +85,7 @@ export default function App() {
         <Sidebar active={tab} onChange={(t) => { setTab(t); if (t !== 'add') setEditing(null); }} />
         <main style={{ flex: 1, overflowY: 'auto', padding: 24, background: 'var(--bg)' }}>
           <PageHeader title={title} sub={sub}>
-            {tab === 'portfolio' && <Btn small primary onClick={handleAdd}>＋ Tambah</Btn>}
+            {tab === 'portfolio' && <Btn small primary onClick={handleAdd}>＋ Add</Btn>}
           </PageHeader>
 
           {tab === 'overview'  && <Overview  data={data} />}
