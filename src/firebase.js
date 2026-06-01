@@ -18,7 +18,7 @@ export const auth = getAuth(app);
 // All other logged-in users are viewers only
 export const EDITOR_EMAILS = [
   'fitri.sitanggang@gmail.com',
-  'julius@asli-group.com',
+  
 ];
 
 export const isEditor = (email) => {
