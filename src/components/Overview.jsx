@@ -21,22 +21,26 @@ const CustomTooltip = ({ active, payload, prefix = '' }) => {
 
 export default function Overview({ data }) {
   const t = useMemo(() => calcTotals(data), [data]);
+  // Available = facility limit minus active disbursements only (repaid frees up headroom)
   const avail = FACILITY_SGD - t.totSGD;
   const pct = ((t.totSGD / FACILITY_SGD) * 100).toFixed(1);
-  const urgent = data.filter(l => (l.daysLeft ?? 0) <= 30).length;
+  const urgent = data.filter(l => l.status !== 'Repaid' && (l.daysLeft ?? 0) <= 30).length;
+
+  // Charts use active only
+  const active = data.filter(l => l.status !== 'Repaid');
 
   const commMap = {};
-  data.forEach(l => { commMap[l.commodity] = (commMap[l.commodity] || 0) + l.tonnage; });
+  active.forEach(l => { commMap[l.commodity] = (commMap[l.commodity] || 0) + l.tonnage; });
   const commData = Object.entries(commMap).map(([name, value]) => ({ name, value }));
 
   const borrMap = {};
-  data.forEach(l => { borrMap[l.borrower] = (borrMap[l.borrower] || 0) + l.principal; });
+  active.forEach(l => { borrMap[l.borrower] = (borrMap[l.borrower] || 0) + l.principal; });
   const borrData = Object.entries(borrMap).map(([name, value]) => ({
     name: name.replace('PT ', ''),
     value,
   }));
 
-  const matData = data.map(l => ({
+  const matData = active.map(l => ({
     name: l.serial,
     days: l.daysLeft ?? 0,
     fill: (l.daysLeft ?? 0) <= 15 ? '#b52b1e' : (l.daysLeft ?? 0) <= 30 ? '#c8a020' : '#1e7c3a',
@@ -45,7 +49,7 @@ export default function Overview({ data }) {
   return (
     <div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 12, marginBottom: 16 }}>
-        <MetricCard label="Total Green Bean Coffee (SRG)" value={fmt(t.totKg) + ' kg'} sub={data.length + ' warehouse receipts'} />
+        <MetricCard label="Total Green Bean Coffee (SRG)" value={fmt(t.totKg) + ' kg'} sub={t.activeCount + ' active receipts'} />
         <MetricCard label="Loan Principal" value={'IDR ' + (t.totPrinc / 1e9).toFixed(2) + 'B'} sub={fmt(t.totPrinc)} />
         <MetricCard label="Disbursed (SGD)" value={fmtSGD(t.totSGD)} sub={'of SGD 1,510,000'} />
         <MetricCard label="Available" value={fmtSGD(avail)} sub="Remaining headroom" success />
@@ -53,9 +57,21 @@ export default function Overview({ data }) {
         <MetricCard label="Maturing ≤30d" value={urgent} sub={urgent + ' facilit' + (urgent !== 1 ? 'ies' : 'y')} danger={urgent > 0} />
       </div>
 
+      {/* Repaid summary banner — shows if any facility repaid */}
+      {t.repaidCount > 0 && (
+        <div style={{
+          background: '#f0fdf4', border: '1px solid #86efac', borderRadius: 10,
+          padding: '10px 16px', fontSize: 12, color: '#166534',
+          marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        }}>
+          <span>✓ <strong>{t.repaidCount} facility repaid</strong> — SGD headroom restored</span>
+          <span style={{ fontFamily: 'JetBrains Mono', fontWeight: 700 }}>+{fmtSGD(t.totRepaidSGD)} returned</span>
+        </div>
+      )}
+
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
         <Card>
-          <CardTitle>Green Bean Coffee  per Commodity (kg)</CardTitle>
+          <CardTitle>Green Bean Coffee per Commodity (kg)</CardTitle>
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
               <Pie data={commData} cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={3} dataKey="value">
