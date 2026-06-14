@@ -45,6 +45,9 @@ const Grid3 = ({ children }) => (
   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>{children}</div>
 );
 
+// Normalise decimal separator: accept both comma and dot (e.g. "13868,39" → 13868.39)
+const parseFx = (v) => parseFloat(String(v).replace(',', '.')) || 13700;
+
 const EMPTY = {
   srg: '', serial: '', borrower: '', commodity: 'Robusta', warehouse: '', grade: '', phj: '',
   tonnage: '', priceKg: '', ltv: '70', tenor: '1', rate: '3', fx: '13700',
@@ -86,7 +89,7 @@ export default function AddEdit({ data, editing, onSave, onCancel, onEdit, onDel
     const ltv = (parseFloat(form.ltv) || 70) / 100;
     const tenor = parseFloat(form.tenor) || 1;
     const rate = (parseFloat(form.rate) || 3) / 100;
-    const fx = parseFloat(form.fx) || 13700;
+    const fx = parseFx(form.fx); // ← fix: handles comma decimal
     if (!t || !p) { setPreview(null); return; }
     const commVal = t * p;
     const principal = commVal * ltv;
@@ -107,7 +110,7 @@ export default function AddEdit({ data, editing, onSave, onCancel, onEdit, onDel
     const ltv = (parseFloat(form.ltv) || 70) / 100;
     const tenor = parseFloat(form.tenor) || 1;
     const rate = (parseFloat(form.rate) || 3) / 100;
-    const fx = parseFloat(form.fx) || 13700;
+    const fx = parseFx(form.fx); // ← fix: handles comma decimal
     const principal = t * p * ltv;
     const interest = principal * rate * tenor;
     const disbSGD = principal / fx;
@@ -116,7 +119,6 @@ export default function AddEdit({ data, editing, onSave, onCancel, onEdit, onDel
       const mat = new Date(form.disbDate);
       mat.setMonth(mat.getMonth() + tenor);
       maturity = mat.toISOString().split('T')[0];
-      // If Repaid, daysLeft = 0
       daysLeft = form.status === 'Repaid'
         ? 0
         : Math.max(0, Math.round((mat - new Date()) / 86400000));
@@ -173,7 +175,18 @@ export default function AddEdit({ data, editing, onSave, onCancel, onEdit, onDel
             <Field label="LTV (%)" id="ltv" type="number" value={form.ltv} onChange={set('ltv')} placeholder="70" />
             <Field label="Tenor (month)" id="tenor" type="number" value={form.tenor} onChange={set('tenor')} placeholder="1" />
             <Field label="Interest rate (% per tenor)" id="rate" type="number" value={form.rate} onChange={set('rate')} placeholder="3" step="0.1" />
-            <Field label="FX Rate IDR/SGD" id="fx" type="text" value={form.fx} onChange={(v) => { const norm = v.replace(',', '.'); if (/^\d*\.?\d*$/.test(norm)) set('fx')(norm); }} placeholder="13739.27" />
+            <Field
+              label="FX Rate IDR/SGD"
+              id="fx"
+              type="text"
+              value={form.fx}
+              onChange={(v) => {
+                // Accept comma or dot as decimal separator
+                const norm = v.replace(',', '.');
+                if (/^\d*\.?\d*$/.test(norm)) set('fx')(norm);
+              }}
+              placeholder="13739.27"
+            />
           </Grid3>
         </div>
 
@@ -187,7 +200,6 @@ export default function AddEdit({ data, editing, onSave, onCancel, onEdit, onDel
           </Grid2>
         </div>
 
-        {/* ── NEW: Settlement section ── */}
         <div style={{ marginBottom: 16 }}>
           <SectionTitle>Settlement</SectionTitle>
           <Grid2>
