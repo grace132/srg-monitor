@@ -34,9 +34,9 @@ export default function Overview({ data }) {
   const commData = Object.entries(commMap).map(([name, value]) => ({ name, value }));
 
   const borrMap = {};
-  active.forEach(l => { borrMap[l.borrower] = (borrMap[l.borrower] || 0) + l.principal; });
+  active.forEach(l => { borrMap[l.borrower.trim()] = (borrMap[l.borrower.trim()] || 0) + l.principal; });
   const borrData = Object.entries(borrMap).map(([name, value]) => ({
-    name: name.replace('PT ', ''),
+    name: name.trim().replace('PT ', ''),
     value,
   }));
 
