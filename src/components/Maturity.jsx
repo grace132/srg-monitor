@@ -11,14 +11,19 @@ const th = {
 const td = { padding: '9px 11px', borderBottom: '1px solid var(--border)', verticalAlign: 'middle' };
 
 export default function Maturity({ data }) {
-  const sorted = useMemo(() => [...data].sort((a, b) => (a.daysLeft ?? 0) - (b.daysLeft ?? 0)), [data]);
+  // Exclude Repaid from maturity schedule
+  const active = useMemo(() => data.filter(l => l.status !== 'Repaid'), [data]);
+  const sorted = useMemo(() => [...active].sort((a, b) => (a.daysLeft ?? 0) - (b.daysLeft ?? 0)), [active]);
 
-  const urgent = data.filter(l => (l.daysLeft ?? 0) <= 15).length;
-  const soon   = data.filter(l => { const d = l.daysLeft ?? 0; return d > 15 && d <= 30; }).length;
-  const ok     = data.filter(l => (l.daysLeft ?? 0) > 30).length;
-  const urgP   = data.filter(l => (l.daysLeft ?? 0) <= 15).reduce((a, b) => a + b.principal, 0);
+  const urgent = active.filter(l => (l.daysLeft ?? 0) <= 15).length;
+  const soon   = active.filter(l => { const d = l.daysLeft ?? 0; return d > 15 && d <= 30; }).length;
+  const ok     = active.filter(l => (l.daysLeft ?? 0) > 30).length;
+  const urgP   = active.filter(l => (l.daysLeft ?? 0) <= 15).reduce((a, b) => a + b.principal, 0);
 
-  // Group by maturity date
+  // Repaid facilities for reference section
+  const repaid = useMemo(() => data.filter(l => l.status === 'Repaid'), [data]);
+
+  // Group by maturity date (active only)
   const groups = {};
   sorted.forEach(l => {
     const key = l.maturity || 'TBD';
@@ -33,6 +38,22 @@ export default function Maturity({ data }) {
         <MetricCard label="Soon (16–30 days)" value={soon} sub={soon + ' facilit' + (soon !== 1 ? 'ies' : 'y')} />
         <MetricCard label="On Track (>30 days)" value={ok} sub={ok + ' facilit' + (ok !== 1 ? 'ies' : 'y')} success />
       </div>
+
+      {/* Repaid banner */}
+      {repaid.length > 0 && (
+        <div style={{
+          background: '#f0fdf4', border: '1px solid #86efac', borderRadius: 10,
+          padding: '10px 16px', fontSize: 12, color: '#166534',
+          marginBottom: 16, display: 'flex', gap: 16, flexWrap: 'wrap',
+        }}>
+          <span style={{ fontWeight: 700 }}>✓ Repaid facilities ({repaid.length}):</span>
+          {repaid.map(l => (
+            <span key={l.id} style={{ fontFamily: 'JetBrains Mono' }}>
+              {l.serial} · {l.repaymentDate || l.maturity}
+            </span>
+          ))}
+        </div>
+      )}
 
       <Card>
         <CardTitle>Repayment timeline</CardTitle>
@@ -56,6 +77,9 @@ export default function Maturity({ data }) {
             </div>
           );
         })}
+        {sorted.length === 0 && (
+          <div style={{ fontSize: 13, color: 'var(--text-2)', padding: '8px 0' }}>No active facilities.</div>
+        )}
       </Card>
 
       <div style={{ overflowX: 'auto', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}>
