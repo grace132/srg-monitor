@@ -49,6 +49,7 @@ const EMPTY = {
   srg: '', serial: '', borrower: '', commodity: 'Robusta', warehouse: '', grade: '', phj: '',
   tonnage: '', priceKg: '', ltv: '70', tenor: '1', rate: '3', fx: '13700',
   disbDate: '', whFee: '', insFid: '', adminFee: '', phjFee: '110000',
+  status: 'Active', repaymentDate: '',
 };
 
 export default function AddEdit({ data, editing, onSave, onCancel, onEdit, onDelete }) {
@@ -69,6 +70,8 @@ export default function AddEdit({ data, editing, onSave, onCancel, onEdit, onDel
         insFid: String(editing.insFid || ''),
         adminFee: String(editing.adminFee || ''),
         phjFee: String(editing.phjFee || 110000),
+        status: editing.status || 'Active',
+        repaymentDate: editing.repaymentDate || '',
       });
     } else {
       setForm(EMPTY);
@@ -95,6 +98,10 @@ export default function AddEdit({ data, editing, onSave, onCancel, onEdit, onDel
 
   const handleSave = () => {
     if (!form.borrower.trim()) { alert('This field is required.'); return; }
+    if (form.status === 'Repaid' && !form.repaymentDate) {
+      alert('Please enter the Repayment Date for a Repaid facility.');
+      return;
+    }
     const t = parseFloat(form.tonnage) || 0;
     const p = parseFloat(form.priceKg) || 0;
     const ltv = (parseFloat(form.ltv) || 70) / 100;
@@ -109,7 +116,10 @@ export default function AddEdit({ data, editing, onSave, onCancel, onEdit, onDel
       const mat = new Date(form.disbDate);
       mat.setMonth(mat.getMonth() + tenor);
       maturity = mat.toISOString().split('T')[0];
-      daysLeft = Math.max(0, Math.round((mat - new Date()) / 86400000));
+      // If Repaid, daysLeft = 0
+      daysLeft = form.status === 'Repaid'
+        ? 0
+        : Math.max(0, Math.round((mat - new Date()) / 86400000));
     }
     onSave({
       srg: form.srg, serial: form.serial, borrower: form.borrower,
@@ -118,10 +128,14 @@ export default function AddEdit({ data, editing, onSave, onCancel, onEdit, onDel
       principal, interest, disbSGD,
       whFee: parseFloat(form.whFee) || 0, insFid: parseFloat(form.insFid) || 0,
       adminFee: parseFloat(form.adminFee) || 0, phjFee: parseFloat(form.phjFee) || 110000,
-      disbDate: form.disbDate, maturity, daysLeft, status: 'Active',
+      disbDate: form.disbDate, maturity, daysLeft,
+      status: form.status,
+      repaymentDate: form.status === 'Repaid' ? form.repaymentDate : '',
     });
     setForm(EMPTY);
   };
+
+  const isRepaid = form.status === 'Repaid';
 
   const th = {
     padding: '8px 10px', textAlign: 'left', fontWeight: 600, fontSize: 10,
@@ -173,6 +187,35 @@ export default function AddEdit({ data, editing, onSave, onCancel, onEdit, onDel
           </Grid2>
         </div>
 
+        {/* ── NEW: Settlement section ── */}
+        <div style={{ marginBottom: 16 }}>
+          <SectionTitle>Settlement</SectionTitle>
+          <Grid2>
+            <Select
+              label="Status"
+              id="status"
+              value={form.status}
+              onChange={set('status')}
+              options={['Active', 'Repaid']}
+            />
+            <Field
+              label="Repayment Date"
+              id="repaymentDate"
+              type="date"
+              value={form.repaymentDate}
+              onChange={set('repaymentDate')}
+            />
+          </Grid2>
+          {isRepaid && (
+            <div style={{
+              background: '#f0fdf4', border: '1px solid #86efac', borderRadius: 8,
+              padding: '10px 14px', fontSize: 12, color: '#166534', marginTop: 4,
+            }}>
+              ✓ This facility will be marked as <strong>Repaid</strong>. Days Remaining will be set to 0 and excluded from active portfolio totals.
+            </div>
+          )}
+        </div>
+
         {preview && (
           <div style={{ background: 'var(--green-bg)', border: '1px solid rgba(30,124,58,0.2)', borderRadius: 10, padding: '12px 14px', fontSize: 12, color: 'var(--brand-dark)', marginBottom: 14, fontFamily: 'JetBrains Mono', lineHeight: 1.8 }}>
             <strong>Auto-calculated:</strong><br />
@@ -197,27 +240,44 @@ export default function AddEdit({ data, editing, onSave, onCancel, onEdit, onDel
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
           <thead>
             <tr>
-              {['#','Borrower','Commodities','Tonnage','Principal (IDR)','SGD','Days','Edit','Delete']
+              {['#','Borrower','Commodities','Tonnage','Principal (IDR)','SGD','Days','Status','Edit','Delete']
                 .map(h => <th key={h} style={th}>{h}</th>)}
             </tr>
           </thead>
           <tbody>
             {data.length === 0 && (
-              <tr><td colSpan={9} style={{ ...td, textAlign: 'center', padding: '1.5rem', color: 'var(--text-2)' }}>No facilities yet.</td></tr>
+              <tr><td colSpan={10} style={{ ...td, textAlign: 'center', padding: '1.5rem', color: 'var(--text-2)' }}>No facilities yet.</td></tr>
             )}
-            {data.map((l, i) => (
-              <tr key={l.id} style={{ background: i % 2 === 0 ? 'var(--surface)' : 'var(--bg)' }}>
-                <td style={td}>{i + 1}</td>
-                <td style={{ ...td, fontSize: 12 }}>{l.borrower.replace('PT ', '')}</td>
-                <td style={td}>{l.commodity}</td>
-                <td style={{ ...td, fontFamily: 'JetBrains Mono' }}>{Math.round(l.tonnage).toLocaleString()}</td>
-                <td style={{ ...td, fontFamily: 'JetBrains Mono', fontSize: 11 }}>{Math.round(l.principal).toLocaleString('id-ID')}</td>
-                <td style={{ ...td, fontFamily: 'JetBrains Mono', fontSize: 11 }}>{fmtSGD(l.disbSGD)}</td>
-                <td style={{ ...td, textAlign: 'center', fontWeight: 700 }}>{l.daysLeft ?? 0}</td>
-                <td style={td}><Btn small onClick={() => onEdit(l)}>Edit</Btn></td>
-                <td style={td}><Btn small danger onClick={() => onDelete(l.id)}>Delete</Btn></td>
-              </tr>
-            ))}
+            {data.map((l, i) => {
+              const repaid = l.status === 'Repaid';
+              return (
+                <tr key={l.id} style={{
+                  background: repaid
+                    ? '#f0fdf4'
+                    : i % 2 === 0 ? 'var(--surface)' : 'var(--bg)',
+                  opacity: repaid ? 0.75 : 1,
+                }}>
+                  <td style={td}>{i + 1}</td>
+                  <td style={{ ...td, fontSize: 12 }}>{l.borrower.replace('PT ', '')}</td>
+                  <td style={td}>{l.commodity}</td>
+                  <td style={{ ...td, fontFamily: 'JetBrains Mono' }}>{Math.round(l.tonnage).toLocaleString()}</td>
+                  <td style={{ ...td, fontFamily: 'JetBrains Mono', fontSize: 11 }}>{Math.round(l.principal).toLocaleString('id-ID')}</td>
+                  <td style={{ ...td, fontFamily: 'JetBrains Mono', fontSize: 11 }}>{fmtSGD(l.disbSGD)}</td>
+                  <td style={{ ...td, textAlign: 'center', fontWeight: 700 }}>{repaid ? '—' : (l.daysLeft ?? 0)}</td>
+                  <td style={td}>
+                    <span style={{
+                      fontSize: 10, padding: '2px 8px', borderRadius: 20, fontWeight: 600,
+                      background: repaid ? '#dcfce7' : '#d1fae5',
+                      color: repaid ? '#166534' : '#065f46',
+                    }}>
+                      {repaid ? 'Repaid' : 'Active'}
+                    </span>
+                  </td>
+                  <td style={td}><Btn small onClick={() => onEdit(l)}>Edit</Btn></td>
+                  <td style={td}><Btn small danger onClick={() => onDelete(l.id)}>Delete</Btn></td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
