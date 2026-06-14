@@ -173,7 +173,7 @@ export default function AddEdit({ data, editing, onSave, onCancel, onEdit, onDel
             <Field label="LTV (%)" id="ltv" type="number" value={form.ltv} onChange={set('ltv')} placeholder="70" />
             <Field label="Tenor (month)" id="tenor" type="number" value={form.tenor} onChange={set('tenor')} placeholder="1" />
             <Field label="Interest rate (% per tenor)" id="rate" type="number" value={form.rate} onChange={set('rate')} placeholder="3" step="0.1" />
-            <Field label="FX Rate IDR/SGD" id="fx" type="number" value={form.fx} onChange={set('fx')} placeholder="13700" />
+            <Field label="FX Rate IDR/SGD" id="fx" type="text" value={form.fx} onChange={(v) => { if (/^\d*\.?\d*$/.test(v)) set('fx')(v); }} placeholder="13739.27" />
           </Grid3>
         </div>
 
