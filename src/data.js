@@ -5,7 +5,7 @@ const calcDays = (maturity) => {
   return Math.max(0, Math.round((new Date(maturity) - new Date()) / 86400000));
 };
 
-export const DEFAULT_LOANS = [
+export const DEFAULT_DATA = [
   {
     id: 'AN015812',
     srg: '00900205260012', serial: 'AN015812',
