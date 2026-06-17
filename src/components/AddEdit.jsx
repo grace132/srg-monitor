@@ -45,12 +45,12 @@ const Grid3 = ({ children }) => (
   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>{children}</div>
 );
 
-// Normalise decimal separator: accept both comma and dot (e.g. "13868,39" → 13868.39)
 const parseFx = (v) => parseFloat(String(v).replace(',', '.')) || 13700;
 
 const EMPTY = {
   srg: '', serial: '', borrower: '', commodity: 'Robusta', warehouse: '', grade: '', phj: '',
   tonnage: '', priceKg: '', ltv: '70', tenor: '1', rate: '3', fx: '13700',
+  disbAmtIDR: '', // ← NEW: actual disbursed amount in IDR (after cost deductions)
   disbDate: '', whFee: '', insFid: '', adminFee: '', phjFee: '110000',
   status: 'Active', repaymentDate: '',
 };
@@ -69,6 +69,7 @@ export default function AddEdit({ data, editing, onSave, onCancel, onEdit, onDel
         tenor: String(editing.tenor || 1),
         rate: String(editing.rate || 3),
         fx: String(editing.fx || 13700),
+        disbAmtIDR: String(editing.disbAmtIDR || ''),
         whFee: String(editing.whFee || ''),
         insFid: String(editing.insFid || ''),
         adminFee: String(editing.adminFee || ''),
@@ -89,18 +90,22 @@ export default function AddEdit({ data, editing, onSave, onCancel, onEdit, onDel
     const ltv = (parseFloat(form.ltv) || 70) / 100;
     const tenor = parseFloat(form.tenor) || 1;
     const rate = (parseFloat(form.rate) || 3) / 100;
-    const fx = parseFx(form.fx); // ← fix: handles comma decimal
+    const fx = parseFx(form.fx);
     if (!t || !p) { setPreview(null); return; }
     const commVal = t * p;
     const principal = commVal * ltv;
     const interest = principal * rate * tenor;
-    const disbSGD = principal / fx;
-    const currentSGD = data.filter(l => !editing || l.id !== editing.id).reduce((a, b) => a + b.disbSGD, 0);
-    setPreview({ commVal, principal, interest, disbSGD, headroom: FACILITY_SGD - currentSGD - disbSGD });
+    // If disbAmtIDR is filled, use it for SGD conversion; otherwise use principal
+    const disbAmt = parseFloat(form.disbAmtIDR) || principal;
+    const disbSGD = disbAmt / fx;
+    const currentSGD = data.filter(l => !editing || l.id !== editing.id)
+      .filter(l => l.status !== 'Repaid')
+      .reduce((a, b) => a + b.disbSGD, 0);
+    setPreview({ commVal, principal, interest, disbAmt, disbSGD, headroom: FACILITY_SGD - currentSGD - disbSGD });
   }, [form, data, editing]);
 
   const handleSave = () => {
-    if (!form.borrower.trim()) { alert('This field is required.'); return; }
+    if (!form.borrower.trim()) { alert('Borrower is required.'); return; }
     if (form.status === 'Repaid' && !form.repaymentDate) {
       alert('Please enter the Repayment Date for a Repaid facility.');
       return;
@@ -110,10 +115,12 @@ export default function AddEdit({ data, editing, onSave, onCancel, onEdit, onDel
     const ltv = (parseFloat(form.ltv) || 70) / 100;
     const tenor = parseFloat(form.tenor) || 1;
     const rate = (parseFloat(form.rate) || 3) / 100;
-    const fx = parseFx(form.fx); // ← fix: handles comma decimal
+    const fx = parseFx(form.fx);
     const principal = t * p * ltv;
     const interest = principal * rate * tenor;
-    const disbSGD = principal / fx;
+    // Use disbAmtIDR if provided, otherwise fall back to principal
+    const disbAmt = parseFloat(form.disbAmtIDR) || principal;
+    const disbSGD = disbAmt / fx;
     let maturity = '', daysLeft = 0;
     if (form.disbDate) {
       const mat = new Date(form.disbDate);
@@ -127,7 +134,7 @@ export default function AddEdit({ data, editing, onSave, onCancel, onEdit, onDel
       srg: form.srg, serial: form.serial, borrower: form.borrower,
       commodity: form.commodity, warehouse: form.warehouse, grade: form.grade, phj: form.phj,
       tonnage: t, priceKg: p, ltv: parseFloat(form.ltv), tenor, rate: parseFloat(form.rate), fx,
-      principal, interest, disbSGD,
+      principal, interest, disbSGD, disbAmtIDR: disbAmt,
       whFee: parseFloat(form.whFee) || 0, insFid: parseFloat(form.insFid) || 0,
       adminFee: parseFloat(form.adminFee) || 0, phjFee: parseFloat(form.phjFee) || 110000,
       disbDate: form.disbDate, maturity, daysLeft,
@@ -181,11 +188,10 @@ export default function AddEdit({ data, editing, onSave, onCancel, onEdit, onDel
               type="text"
               value={form.fx}
               onChange={(v) => {
-                // Accept comma or dot as decimal separator
                 const norm = v.replace(',', '.');
                 if (/^\d*\.?\d*$/.test(norm)) set('fx')(norm);
               }}
-              placeholder="13739.27"
+              placeholder="13607.67"
             />
           </Grid3>
         </div>
@@ -200,23 +206,31 @@ export default function AddEdit({ data, editing, onSave, onCancel, onEdit, onDel
           </Grid2>
         </div>
 
+        {/* Disbursed Amount override */}
+        <div style={{ marginBottom: 16 }}>
+          <SectionTitle>Disbursed Amount (actual)</SectionTitle>
+          <Grid2>
+            <Field
+              label="Disbursed Amount IDR (actual transfer)"
+              id="disbAmtIDR"
+              type="number"
+              value={form.disbAmtIDR}
+              onChange={set('disbAmtIDR')}
+              placeholder="e.g. 2214664275 — leave blank to use Principal"
+            />
+            <div style={{ display: 'flex', alignItems: 'flex-end', paddingBottom: 4 }}>
+              <div style={{ fontSize: 11, color: 'var(--text-2)', lineHeight: 1.5 }}>
+                Isi field ini jika jumlah yang ditransfer ke borrower <strong>berbeda dari Principal</strong> (sudah dipotong biaya). Kosongkan jika sama dengan Principal.
+              </div>
+            </div>
+          </Grid2>
+        </div>
+
         <div style={{ marginBottom: 16 }}>
           <SectionTitle>Settlement</SectionTitle>
           <Grid2>
-            <Select
-              label="Status"
-              id="status"
-              value={form.status}
-              onChange={set('status')}
-              options={['Active', 'Repaid']}
-            />
-            <Field
-              label="Repayment Date"
-              id="repaymentDate"
-              type="date"
-              value={form.repaymentDate}
-              onChange={set('repaymentDate')}
-            />
+            <Select label="Status" id="status" value={form.status} onChange={set('status')} options={['Active', 'Repaid']} />
+            <Field label="Repayment Date" id="repaymentDate" type="date" value={form.repaymentDate} onChange={set('repaymentDate')} />
           </Grid2>
           {isRepaid && (
             <div style={{
@@ -231,11 +245,12 @@ export default function AddEdit({ data, editing, onSave, onCancel, onEdit, onDel
         {preview && (
           <div style={{ background: 'var(--green-bg)', border: '1px solid rgba(30,124,58,0.2)', borderRadius: 10, padding: '12px 14px', fontSize: 12, color: 'var(--brand-dark)', marginBottom: 14, fontFamily: 'JetBrains Mono', lineHeight: 1.8 }}>
             <strong>Auto-calculated:</strong><br />
-            Commodity value &nbsp;&nbsp;= IDR {fmt(preview.commVal)}<br />
-            Loan principal &nbsp;&nbsp;&nbsp;= IDR {fmt(preview.principal)}<br />
-            Interest income &nbsp;&nbsp;= IDR {fmt(preview.interest)}<br />
-            Disbursed &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= {fmtSGD(preview.disbSGD)}<br />
-            Remaining facility &nbsp;&nbsp;&nbsp;&nbsp;= {fmtSGD(preview.headroom)}
+            Commodity value &nbsp;&nbsp;&nbsp;= IDR {fmt(preview.commVal)}<br />
+            Loan principal &nbsp;&nbsp;&nbsp;&nbsp;= IDR {fmt(preview.principal)}<br />
+            Interest income &nbsp;&nbsp;&nbsp;= IDR {fmt(preview.interest)}<br />
+            Disbursed (IDR) &nbsp;&nbsp;&nbsp;= IDR {fmt(preview.disbAmt)}<br />
+            Disbursed (SGD) &nbsp;&nbsp;&nbsp;= {fmtSGD(preview.disbSGD)}<br />
+            Remaining facility = {fmtSGD(preview.headroom)}
           </div>
         )}
 
@@ -252,7 +267,7 @@ export default function AddEdit({ data, editing, onSave, onCancel, onEdit, onDel
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
           <thead>
             <tr>
-              {['#','Borrower','Commodities','Tonnage','Principal (IDR)','SGD','Days','Status','Edit','Delete']
+              {['#','Borrower','Commodity','Tonnage','Principal (IDR)','SGD','Days','Status','Edit','Delete']
                 .map(h => <th key={h} style={th}>{h}</th>)}
             </tr>
           </thead>
@@ -264,9 +279,7 @@ export default function AddEdit({ data, editing, onSave, onCancel, onEdit, onDel
               const repaid = l.status === 'Repaid';
               return (
                 <tr key={l.id} style={{
-                  background: repaid
-                    ? '#f0fdf4'
-                    : i % 2 === 0 ? 'var(--surface)' : 'var(--bg)',
+                  background: repaid ? '#f0fdf4' : i % 2 === 0 ? 'var(--surface)' : 'var(--bg)',
                   opacity: repaid ? 0.75 : 1,
                 }}>
                   <td style={td}>{i + 1}</td>
