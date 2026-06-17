@@ -33,8 +33,7 @@ export const calcTotals = (data) => {
   const netIDR     = totIncIDR - totPhjIDR;
   const netSGD     = totIncSGD - totPhjSGD;
 
-  // Repaid totals — for reference/display
-  const repaid     = data.filter(l => l.status === 'Repaid');
+  const repaid       = data.filter(l => l.status === 'Repaid');
   const totRepaidSGD = repaid.reduce((a, b) => a + b.disbSGD, 0);
 
   return {
