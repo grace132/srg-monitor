@@ -1,5 +1,10 @@
 export const FACILITY_SGD = 1510000;
 
+const calcDays = (maturity) => {
+  if (!maturity) return 0;
+  return Math.max(0, Math.round((new Date(maturity) - new Date()) / 86400000));
+};
+
 export const DEFAULT_LOANS = [
   {
     id: 'AN015812',
@@ -21,7 +26,7 @@ export const DEFAULT_LOANS = [
     principal: 365062600, interest: 10951878, disbSGD: 26737.91,
     whFee: 0, insFid: 0, adminFee: 0, phjFee: 110000,
     disbDate: '2026-05-22', maturity: '2026-06-22',
-    daysLeft: 5, status: 'Active', repaymentDate: '',
+    daysLeft: calcDays('2026-06-22'), status: 'Active', repaymentDate: '',
   },
   {
     id: 'AP012722',
@@ -32,7 +37,7 @@ export const DEFAULT_LOANS = [
     principal: 910000000, interest: 81900000, disbSGD: 60231.37,
     whFee: 0, insFid: 0, adminFee: 0, phjFee: 110000,
     disbDate: '2026-05-26', maturity: '2026-08-25',
-    daysLeft: 69, status: 'Active', repaymentDate: '',
+    daysLeft: calcDays('2026-08-25'), status: 'Active', repaymentDate: '',
   },
   {
     id: 'AP017491',
@@ -43,7 +48,7 @@ export const DEFAULT_LOANS = [
     principal: 2275000000, interest: 204750000, disbSGD: 150590.42,
     whFee: 0, insFid: 0, adminFee: 0, phjFee: 110000,
     disbDate: '2026-05-26', maturity: '2026-08-25',
-    daysLeft: 69, status: 'Active', repaymentDate: '',
+    daysLeft: calcDays('2026-08-25'), status: 'Active', repaymentDate: '',
   },
   {
     id: 'AP017489',
@@ -54,7 +59,7 @@ export const DEFAULT_LOANS = [
     principal: 2275000000, interest: 204750000, disbSGD: 150590.42,
     whFee: 0, insFid: 0, adminFee: 0, phjFee: 110000,
     disbDate: '2026-05-26', maturity: '2026-08-25',
-    daysLeft: 69, status: 'Active', repaymentDate: '',
+    daysLeft: calcDays('2026-08-25'), status: 'Active', repaymentDate: '',
   },
   {
     id: 'AP017490',
@@ -65,7 +70,7 @@ export const DEFAULT_LOANS = [
     principal: 2275000000, interest: 204750000, disbSGD: 150590.42,
     whFee: 0, insFid: 0, adminFee: 0, phjFee: 110000,
     disbDate: '2026-05-26', maturity: '2026-08-25',
-    daysLeft: 69, status: 'Active', repaymentDate: '',
+    daysLeft: calcDays('2026-08-25'), status: 'Active', repaymentDate: '',
   },
   {
     id: 'AP017492',
@@ -76,7 +81,7 @@ export const DEFAULT_LOANS = [
     principal: 1365000000, interest: 122850000, disbSGD: 90351.05,
     whFee: 0, insFid: 0, adminFee: 0, phjFee: 110000,
     disbDate: '2026-05-26', maturity: '2026-08-26',
-    daysLeft: 70, status: 'Active', repaymentDate: '',
+    daysLeft: calcDays('2026-08-26'), status: 'Active', repaymentDate: '',
   },
   {
     id: 'AP017493',
@@ -87,7 +92,7 @@ export const DEFAULT_LOANS = [
     principal: 4550000000, interest: 409500000, disbSGD: 301188.86,
     whFee: 0, insFid: 0, adminFee: 0, phjFee: 110000,
     disbDate: '2026-05-26', maturity: '2026-08-26',
-    daysLeft: 70, status: 'Active', repaymentDate: '',
+    daysLeft: calcDays('2026-08-26'), status: 'Active', repaymentDate: '',
   },
   {
     id: 'AP017494',
@@ -98,7 +103,7 @@ export const DEFAULT_LOANS = [
     principal: 4550000000, interest: 409500000, disbSGD: 299407.57,
     whFee: 0, insFid: 0, adminFee: 0, phjFee: 110000,
     disbDate: '2026-06-03', maturity: '2026-09-03',
-    daysLeft: 78, status: 'Active', repaymentDate: '',
+    daysLeft: calcDays('2026-09-03'), status: 'Active', repaymentDate: '',
   },
   {
     id: 'AP017496',
@@ -109,6 +114,6 @@ export const DEFAULT_LOANS = [
     principal: 2275000000, interest: 204750000, disbSGD: 149188.37,
     whFee: 0, insFid: 0, adminFee: 0, phjFee: 110000,
     disbDate: '2026-06-03', maturity: '2026-09-03',
-    daysLeft: 78, status: 'Active', repaymentDate: '',
+    daysLeft: calcDays('2026-09-03'), status: 'Active', repaymentDate: '',
   },
 ];
