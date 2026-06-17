@@ -1,4 +1,4 @@
-export const FACILITY_SGD = 1510000;
+export const FACILITY_SGD = 1449600;
 
 const calcDays = (maturity) => {
   if (!maturity) return 0;
