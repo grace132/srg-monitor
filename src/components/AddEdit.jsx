@@ -95,9 +95,10 @@ export default function AddEdit({ data, editing, onSave, onCancel, onEdit, onDel
     const commVal = t * p;
     const principal = commVal * ltv;
     const interest = principal * rate * tenor;
-    // If disbAmtIDR is filled, use it for SGD conversion; otherwise use principal
+    // disbSGD always uses principal for facility utilization tracking
+    const disbSGD = principal / fx;
+    // disbAmt = actual IDR transferred to borrower (for display only)
     const disbAmt = parseFloat(form.disbAmtIDR) || principal;
-    const disbSGD = disbAmt / fx;
     const currentSGD = data.filter(l => !editing || l.id !== editing.id)
       .filter(l => l.status !== 'Repaid')
       .reduce((a, b) => a + b.disbSGD, 0);
@@ -118,9 +119,10 @@ export default function AddEdit({ data, editing, onSave, onCancel, onEdit, onDel
     const fx = parseFx(form.fx);
     const principal = t * p * ltv;
     const interest = principal * rate * tenor;
-    // Use disbAmtIDR if provided, otherwise fall back to principal
+    // disbSGD always uses principal for facility utilization tracking
+    const disbSGD = principal / fx;
+    // disbAmt = actual IDR transferred to borrower (reference only)
     const disbAmt = parseFloat(form.disbAmtIDR) || principal;
-    const disbSGD = disbAmt / fx;
     let maturity = '', daysLeft = 0;
     if (form.disbDate) {
       const mat = new Date(form.disbDate);
@@ -248,9 +250,9 @@ export default function AddEdit({ data, editing, onSave, onCancel, onEdit, onDel
             Commodity value &nbsp;&nbsp;&nbsp;= IDR {fmt(preview.commVal)}<br />
             Loan principal &nbsp;&nbsp;&nbsp;&nbsp;= IDR {fmt(preview.principal)}<br />
             Interest income &nbsp;&nbsp;&nbsp;= IDR {fmt(preview.interest)}<br />
-            Disbursed (IDR) &nbsp;&nbsp;&nbsp;= IDR {fmt(preview.disbAmt)}<br />
-            Disbursed (SGD) &nbsp;&nbsp;&nbsp;= {fmtSGD(preview.disbSGD)}<br />
-            Remaining facility = {fmtSGD(preview.headroom)}
+            Disbursed to borrower (IDR) = IDR {fmt(preview.disbAmt)}<br />
+            Loan Principal (SGD) &nbsp;&nbsp;&nbsp;= {fmtSGD(preview.disbSGD)}<br />
+            Remaining facility &nbsp;&nbsp;&nbsp;&nbsp;= {fmtSGD(preview.headroom)}
           </div>
         )}
 
